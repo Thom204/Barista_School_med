@@ -2,6 +2,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.oauth2.service_account import Credentials
 from google.auth.transport.requests import Request
 import gspread
+import django
 import pickle
 import os
 
@@ -22,9 +23,8 @@ class dia():
     def setClases(dc):
         clasesDia= dc
 
-
-
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive.file"]
+
 
 # Usamos el archivo de credenciales para el cliente OAuth2
 def Usr_Authenticate():
@@ -47,6 +47,7 @@ def Usr_Authenticate():
 
     return creds
 
+
 def authenticate():
     creds = None
     if os.path.exists('baristamed-6c80d046e9bf.json'):
@@ -61,47 +62,27 @@ def connect_to_gspread():
     client = gspread.authorize(creds)
     return client
 
-def ofertar(dctDias, sheet):
-    for dia in dctDias:
-        for clase in dia.clasesDia:
-            cell= str(dia.codigo+clase)  
-            sheet.update_accel(cell, dia.clasesDia[clase])
-    
-
 # Función principal del bucle
 def main():
     client = None
     # Bucle de comandos
-    while True:
-        comm = input("Introduce el enlace de la hoja de cálculo (o '0' para salir): ")
-        if comm != '0':
-            if client is None:
-                client = connect_to_gspread()
 
-            # Extraemos el ID de la hoja de cálculo del enlace
-            try:
-                # El ID de la hoja está entre "/d/" y "/edit"
-                spreadsheet_id = '1yoY3KDOB1RRTbesi6UUjE3q7EFPjc9rTHJtVKuRfucQ'
+    if client is None:
+        client = connect_to_gspread()
 
-                # Intentamos acceder a la hoja de cálculo por ID
-                sheet = client.open_by_key(spreadsheet_id).sheet1
-                print(f"Conectado a la hoja con ID '{spreadsheet_id}' correctamente.")
+        # Extraemos el ID de la hoja de cálculo del enlace
+        try:
+            # El ID de la hoja está entre "/d/" y "/edit"
+            spreadsheet_id = '1yoY3KDOB1RRTbesi6UUjE3q7EFPjc9rTHJtVKuRfucQ'
+
+            # Intentamos acceder a la hoja de cálculo por ID
+            sheet = client.open_by_key(spreadsheet_id).sheet1
                 
-                # Obtener y mostrar datos
-                data = sheet.get_all_records()  # Obtener todos los registros como lista de diccionarios
-                print("Contenido de la hoja:", data)
+            # Obtener y mostrar datos
+            data = sheet.get_all_records()
 
-                '''lunes= dia('lunes')
-                lunes.setClases({6: 'kevin', 7: 'kevin', 10: 'kevin', 11: 'kevin'})
-
-                ofertar([lunes], sheet)
-
-                print(sheet.get_all_records())'''
-
-            except Exception as e:
-                print(f"Ocurrió un error: {e}")
-        else:
-            break
+        except Exception as e:
+            print(f"Ocurrió un error: {e}")
 
 # Ejecutamos el script
 if __name__ == "__main__":
