@@ -14,7 +14,7 @@ def get_service():
 
 
 def read_schedule():
-    """Leer todas las clases almacenadas en la hoja"""
+    """Leer todas las clases almacenadas en la hoja y convertir profesores y alumnos a listas"""
     service = get_service()
     sheet = service.spreadsheets()
     result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range="A1:Z100").execute()
@@ -24,12 +24,17 @@ def read_schedule():
     for row_idx, row in enumerate(values, start=1):
         for col_idx, cell in enumerate(row, start=1):
             try:
-                clase = json.loads(cell)
+                clase = json.loads(cell)  # Convertir el contenido de la celda a JSON
                 clase["row"] = row_idx
                 clase["col"] = col_idx
+
+                # Convertir profesores y alumnos a listas
+                clase["profesores"] = json.loads(clase["profesores"]) if isinstance(clase["profesores"], str) else clase["profesores"]
+                clase["alumnos"] = json.loads(clase["alumnos"]) if isinstance(clase["alumnos"], str) else clase["alumnos"]
+
                 clases.append(clase)
-            except json.JSONDecodeError:
-                continue  # Ignorar celdas vacías o con datos no válidos
+            except (json.JSONDecodeError, KeyError):
+                continue  # Ignorar celdas vacías o con datos inválidos
 
     return clases
 

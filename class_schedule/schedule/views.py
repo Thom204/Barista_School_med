@@ -37,7 +37,7 @@ def create_class(request):
             clase.save()
 
             # ✅ Guardamos en Google Sheets
-            write_class(row, col, clase)  # Asegúrate de que esta función esté bien definida
+            write_class(row, col, clase)
 
             return redirect("list_classes")
         except ValueError as e:

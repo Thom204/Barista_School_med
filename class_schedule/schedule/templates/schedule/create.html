@@ -3,83 +3,121 @@
 {% block title %}Agregar Nueva Clase{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="text-center mb-4">Agregar Nueva Clase</h2>
+<div class="container mt-5">
+    <div class="card shadow-lg mx-auto" style="max-width: 800px;">
+        <div class="card-header bg-primary text-white text-center py-3">
+            <h2 class="mb-0">Agregar Nueva Clase</h2>
+        </div>
+        <div class="card-body p-4">
 
-    {% if error %}
-    <div class="alert alert-danger">{{ error }}</div>
-    {% endif %}
-
-    <form method="POST" class="shadow p-4 rounded bg-white">
-        {% csrf_token %}
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="row" class="form-label">Fila:</label>
-                <input type="number" id="row" name="row" class="form-control" required>
+            {% if error %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Error:</strong> {{ error }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
+            {% endif %}
 
-            <div class="col-md-6 mb-3">
-                <label for="col" class="form-label">Columna:</label>
-                <input type="number" id="col" name="col" class="form-control" required>
-            </div>
+            <form method="POST" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <!-- Fila y Columna -->
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                        <label for="row" class="form-label fw-bold">Fila:</label>
+                        <input type="number" id="row" name="row" class="form-control" required>
+                        <div class="invalid-feedback">Por favor, ingresa la fila.</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="col" class="form-label fw-bold">Columna:</label>
+                        <input type="number" id="col" name="col" class="form-control" required>
+                        <div class="invalid-feedback">Por favor, ingresa la columna.</div>
+                    </div>
+                </div>
+
+                <!-- Fecha y Hora -->
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                        <label for="fecha" class="form-label fw-bold">Fecha:</label>
+                        <input type="date" id="fecha" name="fecha" class="form-control" required>
+                        <div class="invalid-feedback">Por favor, ingresa la fecha.</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="hora" class="form-label fw-bold">Hora:</label>
+                        <input type="time" id="hora" name="hora" class="form-control" required>
+                        <div class="invalid-feedback">Por favor, ingresa la hora.</div>
+                    </div>
+                </div>
+
+                <!-- Profesores -->
+                <div class="mb-4">
+                    <label for="profesores" class="form-label fw-bold">Profesores (mínimo 2):</label>
+                    <select id="profesores" name="profesores" class="form-select" multiple required>
+                        <option value="Profesor1">Profesor1</option>
+                        <option value="Profesor2">Profesor2</option>
+                        <option value="Profesor3">Profesor3</option>
+                        <option value="Profesor4">Profesor4</option>
+                    </select>
+                    <small class="text-muted">Mantén presionada Ctrl (Windows) o Cmd (Mac) para seleccionar varios.</small>
+                </div>
+
+                <!-- Alumnos -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Alumnos (mínimo 4):</label>
+                    <ul id="alumnos-container" class="list-group mb-3">
+                        <li class="list-group-item d-flex align-items-center">
+                            <input type="text" name="alumnos" class="form-control me-2" placeholder="Nombre del Alumno" required>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="removeAlumno(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </li>
+                    </ul>
+                    <button type="button" class="btn btn-success w-100" onclick="addAlumno()">
+                        <i class="fas fa-plus"></i> Agregar Alumno
+                    </button>
+                </div>
+
+                <!-- Botón de Guardar -->
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i> Guardar Clase
+                    </button>
+                </div>
+            </form>
         </div>
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="fecha" class="form-label">Fecha:</label>
-                <input type="date" id="fecha" name="fecha" class="form-control" required>
-            </div>
-
-            <div class="col-md-6 mb-3">
-                <label for="hora" class="form-label">Hora:</label>
-                <input type="text" id="hora" name="hora" class="form-control" placeholder="Ejemplo: 14:30" required>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label for="profesores" class="form-label">Profesores (mínimo 2):</label>
-            <select id="profesores" name="profesores" class="form-select" multiple required>
-                <option value="Profesor1">Profesor1</option>
-                <option value="Profesor2">Profesor2</option>
-                <option value="Profesor3">Profesor3</option>
-                <option value="Profesor4">Profesor4</option>
-            </select>
-            <small class="text-muted">Mantén presionada Ctrl (Windows) o Cmd (Mac) para seleccionar varios.</small>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Alumnos (mínimo 4):</label>
-            <ul id="alumnos-container" class="list-unstyled">
-                <li class="alumno-field d-flex align-items-center mb-2">
-                    <input type="text" name="alumnos" class="form-control me-2" placeholder="Nombre del Alumno" required>
-                    <button type="button" class="btn btn-danger btn-sm" onclick="removeAlumno(this)">Eliminar</button>
-                </li>
-            </ul>
-            <button type="button" class="btn btn-primary btn-sm mt-2" onclick="addAlumno()">Agregar Alumno</button>
-        </div>
-
-        <div class="text-center">
-            <button type="submit" class="btn btn-success">Guardar Clase</button>
-        </div>
-    </form>
+    </div>
 </div>
 
+<!-- Agregamos Select2 y FontAwesome para mejorar el diseño -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+<script src="https://kit.fontawesome.com/a076d05399.js"></script>
+
 <script>
-    function addAlumno() {
-        const container = document.getElementById('alumnos-container');
-        const alumnoField = document.createElement('li');
-        alumnoField.className = 'alumno-field d-flex align-items-center mb-2';
-        alumnoField.innerHTML = `
-            <input type="text" name="alumnos" class="form-control me-2" placeholder="Nombre del Alumno" required>
-            <button type="button" class="btn btn-danger btn-sm" onclick="removeAlumno(this)">Eliminar</button>
-        `;
-        container.appendChild(alumnoField);
-    }
+    document.addEventListener("DOMContentLoaded", function () {
+        // Inicializar Select2 para el campo de profesores
+        $("#profesores").select2({
+            placeholder: "Seleccione los profesores",
+            allowClear: true
+        });
 
-    function removeAlumno(button) {
-        button.parentElement.remove();
-    }
+        // Función para agregar un nuevo campo de alumno
+        window.addAlumno = function () {
+            const container = document.getElementById('alumnos-container');
+            const alumnoField = document.createElement('li');
+            alumnoField.className = 'list-group-item d-flex align-items-center';
+            alumnoField.innerHTML = `
+                <input type="text" name="alumnos" class="form-control me-2" placeholder="Nombre del Alumno" required>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeAlumno(this)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            container.appendChild(alumnoField);
+        };
+
+        // Función para eliminar un campo de alumno
+        window.removeAlumno = function (button) {
+            button.parentElement.remove();
+        };
+    });
 </script>
-
 {% endblock %}
