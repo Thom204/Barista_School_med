@@ -11,24 +11,21 @@ def list_classes(request):
 
 def create_class(request):
     if request.method == "POST":
-        row = int(request.POST["row"])
-        col = int(request.POST["col"])
+        col = int(datetime.strptime(request.POST["fecha"], "%Y-%m-%d").weekday()) +1
         fecha = request.POST["fecha"]
         hora = request.POST["hora"]
         profesores = request.POST.getlist("profesores")
         alumnos = request.POST.getlist("alumnos")
 
-        # ✅ Validaciones: Debe haber al menos 2 profesores y 4 alumnos
+        # Validaciones: Debe haber al menos 2 profesores y 4 alumnos
         if len(profesores) < 2:
             return render(request, "schedule/create.html", {"error": "Debe haber al menos 2 profesores."})
         if len(alumnos) < 4:
             return render(request, "schedule/create.html", {"error": "Debe haber al menos 4 alumnos."})
 
         try:
-            # ✅ Guardamos en la BD
+            # Guardamos en la BD
             clase = Clase(
-                row=row,
-                col=col,
                 fecha=fecha,
                 hora=hora,
                 profesores=json.dumps(profesores),  # Guardar como JSON
@@ -36,10 +33,10 @@ def create_class(request):
             )
             clase.save()
 
-            # ✅ Guardamos en Google Sheets
-            write_class(row, col, clase)
-
+            # Guardamos en Google Sheets
+            write_class(col, clase)
             return redirect("list_classes")
+        
         except ValueError as e:
             return render(request, "schedule/create.html", {"error": str(e)})
 

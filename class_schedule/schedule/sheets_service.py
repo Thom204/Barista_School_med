@@ -47,14 +47,33 @@ def check_existing_class(fecha, hora):
             return True
     return False
 
+def find_next_available_row(service, spreadsheet_id, col):
+    """Encuentra la primera fila vacía en la columna seleccionada"""
+    sheet = service.spreadsheets()
+    col_letter = chr(64 + col)  # Convierte el número de columna en letra (Ej: 2 -> 'B')
+    range_col = f"{col_letter}:{col_letter}"  # Rango de toda la columna (Ej: 'B:B')
 
-def write_class(row, col, clase):
+    result = sheet.values().get(spreadsheetId=spreadsheet_id, range=range_col).execute()
+    values = result.get("values", [])
+
+    # Si la columna está vacía, devuelve la fila 1
+    if not values:
+        return 1
+
+    return len(values) + 1  # La siguiente fila vacía
+
+def write_class(col, clase):
     """Escribir o actualizar una clase en una celda específica"""
     if check_existing_class(clase.fecha, clase.hora):
         raise ValueError("Ya existe una clase en este horario")
 
     service = get_service()
     sheet = service.spreadsheets()
+
+    
+    row = find_next_available_row(service, SPREADSHEET_ID, col)
+    print(f"Fila calculada: {row}")  # Imprime el valor de row para verificar
+
     cell = f"{chr(64 + col)}{row}"
 
     values = [[json.dumps({
@@ -65,7 +84,13 @@ def write_class(row, col, clase):
     })]]
 
     body = {"values": values}
-    sheet.values().update(spreadsheetId=SPREADSHEET_ID, range=cell, valueInputOption="RAW", body=body).execute()
+
+    sheet.values().update(
+        spreadsheetId=SPREADSHEET_ID,
+        range=cell,
+        valueInputOption="RAW",
+        body=body
+    ).execute()
 
 
 def delete_class(row, col):

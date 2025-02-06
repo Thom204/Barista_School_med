@@ -2,8 +2,6 @@ import json
 from django.db import models
 # Create your models here.
 class Clase(models.Model):
-    row = models.IntegerField()
-    col = models.IntegerField()
     fecha = models.DateField()
     hora = models.TextField()
     profesores = models.TextField()  # Guardaremos como JSON
