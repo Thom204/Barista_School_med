@@ -20,8 +20,8 @@ def create_class(request):
         # Validaciones: Debe haber al menos 2 profesores y 4 alumnos
         if len(profesores) < 2:
             return render(request, "schedule/create.html", {"error": "Debe haber al menos 2 profesores."})
-        if len(alumnos) < 4:
-            return render(request, "schedule/create.html", {"error": "Debe haber al menos 4 alumnos."})
+        if len(alumnos) < 1 or len(alumnos) > 4:
+            return render(request, "schedule/create.html", {"error": "Debe haber al menos 1 y minimo 4 alumnos."})
 
         try:
             # Guardamos en la BD
