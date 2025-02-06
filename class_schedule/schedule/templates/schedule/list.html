@@ -1,0 +1,40 @@
+{% extends 'schedule/base.html' %}
+
+{% block title %}Lista de Clases{% endblock %}
+
+{% block content %}
+<h2 class="text-center my-4">Clases Agendadas</h2>
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered text-center">
+        <thead class="table-dark">
+        <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Profesores</th>
+            <th>Alumnos</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for clase in clases %}
+        <tr>
+            <td>{{ clase.fecha }}</td>
+            <td>{{ clase.hora }}</td>
+            <td class="text-wrap" style="max-width: 200px;">{{ clase.profesores|join:", " }}</td>
+            <td class="text-wrap" style="max-width: 200px;">{{ clase.alumnos|join:", " }}</td>
+            <td>
+                <form method="POST" action="{% url 'edit_students' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="row" value="{{ clase.row }}">
+                    <input type="hidden" name="col" value="{{ clase.col }}">
+                    <button type="submit" class="btn btn-primary btn-sm">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

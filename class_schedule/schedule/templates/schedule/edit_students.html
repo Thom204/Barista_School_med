@@ -1,0 +1,42 @@
+{% extends '<schedule>
+<list></list>.html' %}
+
+{% block title %}Editar Estudiantes{% endblock %}
+
+{% block content %}
+<h2>Editar Estudiantes de la Clase</h2>
+
+<h4>Fecha: {{ clase.fecha }}</h4>
+<h4>Hora: {{ clase.hora }}</h4>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <h5>Profesores:</h5>
+    <ul>
+        {% for profesor in clase.profesores %}
+        <li>{{ profesor }}</li>
+        {% endfor %}
+    </ul>
+
+    <h5>Alumnos Actuales:</h5>
+    <ul>
+        {% for alumno in clase.alumnos %}
+        <li>
+            {{ alumno }}
+            <input type="checkbox" name="remove_students" value="{{ alumno }}">
+        </li>
+        {% endfor %}
+    </ul>
+
+    <h5>Agregar Estudiantes:</h5>
+    <div class="form-group">
+        <label for="new_students">Estudiantes (separados por coma):</label>
+        <input type="text" id="new_students" name="new_students" class="form-control" placeholder="Agregar nuevos estudiantes">
+        <small id="emailHelp" class="form-text text-muted">Máximo 4 estudiantes por clase.</small>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+</form>
+
+{% endblock %}
