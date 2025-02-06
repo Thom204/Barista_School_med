@@ -47,6 +47,7 @@ def check_existing_class(fecha, hora):
             return True
     return False
 
+
 def find_next_available_row(service, spreadsheet_id, col):
     """Encuentra la primera fila vacía en la columna seleccionada"""
     sheet = service.spreadsheets()
@@ -61,6 +62,7 @@ def find_next_available_row(service, spreadsheet_id, col):
         return 1
 
     return len(values) + 1  # La siguiente fila vacía
+
 
 def write_class(col, clase):
     """Escribir o actualizar una clase en una celda específica"""
@@ -101,3 +103,36 @@ def delete_class(row, col):
 
     body = {"values": [[""]]}
     sheet.values().update(spreadsheetId=SPREADSHEET_ID, range=cell, valueInputOption="RAW", body=body).execute()
+
+
+def update_class_students(row, col, students):
+    """Actualizar la lista de estudiantes de una clase en Google Sheets sin modificar otros datos"""
+    service = get_service()
+    sheet = service.spreadsheets()
+
+    # Obtener el contenido actual de la celda
+    cell_range = f"{chr(64 + col)}{row}"
+    result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=cell_range).execute()
+    current_value = result.get("values", [])
+
+    if not current_value:
+        raise ValueError("La celda está vacía o no contiene datos válidos")
+
+    # Convertir el contenido actual de la celda a un diccionario
+    clase = json.loads(current_value[0][0])
+
+    students = list(set(students))  # Eliminar duplicados
+    if len(students) > 4:
+        raise ValueError("No puede haber más de 4 estudiantes por clase")
+
+    # Modificar la lista de estudiantes
+    clase["alumnos"] = students
+
+    # Convertir el diccionario actualizado de vuelta a JSON
+    updated_value = json.dumps(clase)
+
+    # Actualizar la celda con el nuevo valor
+    body = {
+        "values": [[updated_value]]
+    }
+    sheet.values().update(spreadsheetId=SPREADSHEET_ID, range=cell_range, valueInputOption="RAW", body=body).execute()

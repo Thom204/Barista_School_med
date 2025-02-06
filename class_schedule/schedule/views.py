@@ -1,9 +1,11 @@
 import json
 
 from django.shortcuts import render, redirect
-from .sheets_service import read_schedule, write_class, delete_class
+from django.http import HttpResponse
+from .sheets_service import read_schedule, write_class, delete_class, get_service, update_class_students
 from .models import Clase
 from datetime import datetime, timedelta
+
 # Create your views here.
 def list_classes(request):
     clases = read_schedule()
@@ -11,7 +13,6 @@ def list_classes(request):
 
 def create_class(request):
     if request.method == "POST":
-        col = int(datetime.strptime(request.POST["fecha"], "%Y-%m-%d").weekday()) +1
         fecha = request.POST["fecha"]
         hora = request.POST["hora"]
         profesores = request.POST.getlist("profesores")
@@ -20,8 +21,14 @@ def create_class(request):
         # Validaciones: Debe haber al menos 2 profesores y 4 alumnos
         if len(profesores) < 2:
             return render(request, "schedule/create.html", {"error": "Debe haber al menos 2 profesores."})
-        if len(alumnos) < 1 or len(alumnos) > 4:
-            return render(request, "schedule/create.html", {"error": "Debe haber al menos 1 y minimo 4 alumnos."})
+        if len(alumnos) > 4:
+            return render(request, "schedule/create.html", {"error": "Una clase tiene como maximo 4 alumnos."})
+        
+        if fecha=='' or hora=='':
+            return render(request, "schedule/create.html", {"error": "Seleccione un horario"})
+        
+        col = int(datetime.strptime(request.POST["fecha"], "%Y-%m-%d").weekday()) +1
+        
 
         try:
             # Guardamos en la BD
@@ -55,3 +62,11 @@ def search_classes(request):
             clases = [clase for clase in read_schedule() if week_start_date.strftime("%Y-%m-%d") <= clase["fecha"] <= week_end_date.strftime("%Y-%m-%d")]
             return render(request, "schedule/search.html", {"clases": clases})
     return render(request, "schedule/search.html")
+
+
+def editar_estudiantes(request):
+    row = int(request.POST.get("row"))
+    col = int(request.POST.get("col"))
+
+    delete_class(row,col)
+    return redirect("list_classes")
